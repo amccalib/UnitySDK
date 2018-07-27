@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace PlayFab
@@ -36,6 +38,12 @@ namespace PlayFab
         public const string BuildIdentifier = "jbuild_unitysdk_sdk-unity-2-slave_0";
         public const string VersionString = "UnitySDK-2.47.180716";
         private const string DefaultPlayFabApiUrlPrivate = ".playfabapi.com";
+
+        public static readonly Dictionary<string, string> RequestGetParams = new Dictionary<string, string> {
+            { "SDKname", "UnitySdk" },
+            { "SDKversion", SdkVersion },
+        };
+
         [Obsolete("This field will become private after Mar 1, 2017", false)]
         public static string DefaultPlayFabApiUrl { get { return DefaultPlayFabApiUrlPrivate; } }
 
@@ -57,7 +65,7 @@ namespace PlayFab
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || ENABLE_PLAYFABMATCHMAKER_API || UNITY_EDITOR
         public static string DeveloperSecretKey
         {
-            set { PlayFabSharedPrivate.DeveloperSecretKey = value;}
+            set { PlayFabSharedPrivate.DeveloperSecretKey = value; }
             internal get { return PlayFabSharedPrivate.DeveloperSecretKey; }
         }
 #endif
@@ -150,15 +158,32 @@ namespace PlayFab
             set { PlayFabSharedPrivate.LogCapLimit = value; }
         }
 
-        public static string GetFullUrl(string apiCall)
+        public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams)
         {
+            StringBuilder getSB = new StringBuilder(1000);
+            if (getParams != null)
+            {
+                foreach (var eachParamPair in getParams)
+                {
+                    if (getSB.Length == 0)
+                        getSB.Append("?");
+                    else
+                        getSB.Append("&");
+                    getSB.Append(eachParamPair.Key).Append("=").Append(eachParamPair.Value);
+                }
+            }
+
             string output;
             var baseUrl = ProductionEnvironmentUrlPrivate;
             if (baseUrl.StartsWith("http"))
                 output = baseUrl + apiCall;
             else
                 output = "https://" + TitleId + baseUrl + apiCall;
-            return output;
+
+            if (getSB.Length > 0)
+                output += getSB.ToString();
+
+            return output; // todo final urlSB.tostring() ideally
         }
     }
 }

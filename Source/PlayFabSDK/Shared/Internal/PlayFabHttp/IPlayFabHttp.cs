@@ -57,6 +57,7 @@ namespace PlayFab.Internal
         public string JsonResponse = null;
         public PlayFabRequestCommon ApiRequest;
         public Dictionary<string, string> RequestHeaders;
+        public Dictionary<string, string> RequestGetParams;
         public PlayFabResultCommon ApiResult;
         public PlayFabError Error;
         public Action DeserializeResultJson;
